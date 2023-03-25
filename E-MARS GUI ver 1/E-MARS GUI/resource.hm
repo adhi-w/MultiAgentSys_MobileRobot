@@ -1,0 +1,5 @@
+// Microsoft Visual C++ generated Help ID include file.
+// Used by E-MARS GUI.rc
+//
+#define HIDC_edit_hmin                  0x806603ef    // IDD_EMARSGUI_DIALOG
+#define HIDC_h_min                      0x806603f0    // IDD_EMARSGUI_DIALOG

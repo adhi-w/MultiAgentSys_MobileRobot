@@ -1,0 +1,246 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""res\\EMARSver2.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""afxres.rc""     // Standard components\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "res\\E-MARS ver2.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About E-MARS ver2"
+FONT 8, "MS Shell Dlg", 0, 0, 0x1
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,21,20
+    LTEXT           "E-MARS ver2, Version 1.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 2012",IDC_STATIC,42,26,114,8
+    DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
+END
+
+IDD_EMARSVER2_DIALOG DIALOGEX 0, 0, 655, 419
+STYLE DS_SETFONT | DS_MODALFRAME | DS_SETFOREGROUND | DS_3DLOOK | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_APPWINDOW
+CAPTION "E-MARS ver2  Dec/2012    copyright: CarokCompany.Inc "
+FONT 9, "Felix Titling", 400, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "Connect",IDConnect,103,327,37,17
+    PUSHBUTTON      "Exit",IDExit,595,6,34,15
+    CONTROL         "",IDC_Pic_capture,"Static",SS_BLACKFRAME,3,26,322,277
+    CTEXT           "EEPIS MULTI AGENT ROBOT SOCCER ",IDC_STATIC,185,1,110,8
+    LTEXT           "CAMERA CAPTURE",IDC_STATIC,86,17,57,8
+    CONTROL         "",IDC_Pic_thresh,"Static",SS_BLACKFRAME,328,26,323,277
+    LTEXT           "THRESHOLDING  IMAGE",IDC_STATIC,416,17,72,8
+    CTEXT           "GRAPHICAL USER INTERFACE",IDC_STATIC,298,0,88,8
+    LTEXT           "PortComm",IDC_STATIC,10,334,46,12
+    DEFPUSHBUTTON   "Start",IDStart,556,6,37,16
+    PUSHBUTTON      "disconnect",IDDisconnect,88,351,56,17
+    GROUPBOX        "",IDC_STATIC,5,322,158,55
+    GROUPBOX        "HSV RANGE",IDC_STATIC,329,307,314,108
+    LTEXT           "Hue  Minimum",IDC_STATIC,388,313,46,8
+    CONTROL         "",IDC_Hmin,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,362,326,87,11
+    EDITTEXT        IDC_Edit_Hmin,455,325,31,14,ES_AUTOHSCROLL
+    LTEXT           "Saturation  Minimum",IDC_STATIC,374,346,72,8
+    EDITTEXT        IDC_Edit_Smin,454,356,31,14,ES_AUTOHSCROLL
+    LTEXT           "Value  Minimum",IDC_STATIC,387,377,53,8
+    CONTROL         "",IDC_Vmin,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,361,390,92,11
+    EDITTEXT        IDC_Edit_Vmin,455,389,31,14,ES_AUTOHSCROLL
+    LTEXT           "Hue  Maximum",IDC_STATIC,532,313,47,8
+    CONTROL         "",IDC_Hmax,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,509,327,93,11
+    EDITTEXT        IDC_Edit_Hmax,606,325,31,14,ES_AUTOHSCROLL
+    LTEXT           "Saturation Maximum",IDC_STATIC,524,346,72,8
+    CONTROL         "",IDC_Smax,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,509,359,94,11
+    EDITTEXT        IDC_Edit_Smax,606,356,31,14,ES_AUTOHSCROLL
+    LTEXT           "Value Maximum",IDC_STATIC,537,376,53,8
+    CONTROL         "",IDC_Vmax,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,508,390,95,11
+    EDITTEXT        IDC_Edit_Vmax,606,390,31,14,ES_AUTOHSCROLL
+    LTEXT           "Send data",IDC_STATIC,4,306,36,8
+    LTEXT           "Static",IDC_SendData,47,305,278,14,WS_BORDER,WS_EX_STATICEDGE
+    GROUPBOX        "Kalibrasi",IDC_STATIC,167,322,157,55
+    CONTROL         "Red",IDC_Red,"Button",BS_AUTORADIOBUTTON,177,339,30,10
+    CONTROL         "Green",IDC_Green,"Button",BS_AUTORADIOBUTTON,227,338,30,10
+    CONTROL         "Blue",IDC_Blue,"Button",BS_AUTORADIOBUTTON,283,338,30,10
+    CONTROL         "Yellow",IDC_Yellow,"Button",BS_AUTORADIOBUTTON,177,358,37,10
+    CONTROL         "Orange",IDC_Orange,"Button",BS_AUTORADIOBUTTON,227,357,37,10
+    CONTROL         "",IDC_Smin,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,362,359,91,11
+    EDITTEXT        IDC_dCom,52,331,24,16,ES_CENTER | ES_AUTOHSCROLL
+    CONTROL         "Trek",IDC_Trek,"Button",BS_AUTORADIOBUTTON,283,356,37,10
+    LTEXT           "Brightness",IDC_Brightness,20,389,38,8
+    LTEXT           "Contrass",IDC_Contrass,178,388,34,8
+    CONTROL         "",IDC_SBrightness,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,64,389,68,11
+    CONTROL         "",IDC_SContrass,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,221,388,57,9
+    EDITTEXT        IDC_Edit_Contrs,288,386,22,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_Edit_Bright,137,387,22,15,ES_AUTOHSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904e4"
+        BEGIN
+            VALUE "CompanyName", "TODO: <Company name>"
+            VALUE "FileDescription", "TODO: <File description>"
+            VALUE "FileVersion", "1.0.0.1"
+            VALUE "InternalName", "E-MARS ver2.exe"
+            VALUE "LegalCopyright", "TODO: (c) <Company name>.  All rights reserved."
+            VALUE "OriginalFilename", "E-MARS ver2.exe"
+            VALUE "ProductName", "TODO: <Product name>"
+            VALUE "ProductVersion", "1.0.0.1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 163
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 55
+    END
+
+    IDD_EMARSVER2_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 3
+        RIGHTMARGIN, 651
+        BOTTOMMARGIN, 415
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDS_ABOUTBOX            "&About E-MARS ver2..."
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "res\EMARSver2.rc2"  // non-Microsoft Visual C++ edited resources
+#include "afxres.rc"     // Standard components
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

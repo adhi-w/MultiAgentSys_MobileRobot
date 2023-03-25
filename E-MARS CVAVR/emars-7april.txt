@@ -1,0 +1,550 @@
+/*****************************************************
+This program was produced by the
+CodeWizardAVR V2.03.9 Standard
+Automatic Program Generator
+© Copyright 1998-2008 Pavel Haiduc, HP InfoTech s.r.l.
+http://www.hpinfotech.com
+
+Project : 
+Version : 
+Date    : 1/8/2013
+Author  : CarokArmy
+Company : CarokCo.Inc
+Comments: 
+
+
+Chip type               : ATmega32
+Program type            : Application
+AVR Core Clock frequency: 11.059200 MHz
+Memory model            : Small
+External RAM size       : 0
+Data Stack size         : 512
+*****************************************************/
+
+#include <mega16.h>
+#include <delay.h>
+#include <stdio.h>
+#include <math.h>
+
+#define en1 PORTD.5
+#define cw1 PORTD.6
+#define ccw1 PORTD.7
+
+
+#define en2 PORTD.2
+#define cw2 PORTD.4
+#define ccw2 PORTD.3
+
+#define en3 PORTB.5
+#define cw3 PORTB.3
+#define ccw3 PORTB.4
+
+
+#define en4 PORTB.6
+#define cw4 PORTB.7
+#define ccw4 PORTC.7
+
+
+
+
+#define cos30   0.866   
+#define cos45   0.707  
+#define cos60   0.5 
+
+// I2C Bus functions
+#asm
+   .equ __i2c_port=0x15 ;PORTC
+   .equ __sda_bit=1
+   .equ __scl_bit=0
+#endasm
+#include <i2c.h>
+
+// Alphanumeric LCD Module functions
+#asm
+   .equ __lcd_port=0x1B ;PORTA
+#endasm
+#include <lcd.h>
+
+#define RXB8 1
+#define TXB8 0
+#define UPE 2
+#define OVR 3
+#define FE 4
+#define UDRE 5
+#define RXC 7
+
+#define FRAMING_ERROR (1<<FE)
+#define PARITY_ERROR (1<<UPE)
+#define DATA_OVERRUN (1<<OVR)
+#define DATA_REGISTER_EMPTY (1<<UDRE)
+#define RX_COMPLETE (1<<RXC)
+
+// USART Receiver buffer
+#define RX_BUFFER_SIZE 8
+char rx_buffer[RX_BUFFER_SIZE];
+
+#if RX_BUFFER_SIZE<256
+unsigned char rx_wr_index,rx_rd_index,rx_counter;
+#else
+unsigned int rx_wr_index,rx_rd_index,rx_counter;
+#endif
+
+// This flag is set on USART Receiver buffer overflow
+bit rx_buffer_overflow;
+
+static int x_r, y_r, x_g, y_g, x_b, y_b, x_y, y_y; 
+static int sr,sg;
+int flag;
+int magnitude;
+float sudut, dkompas;
+static float s_rg, s_ry, s_by;
+static int m_rg, m_ry ,m_by;
+
+int kuadran=0;
+
+float Fa,Fb,Fc,Fd;  
+int Vel=180;
+
+float er=0,der,P,D;
+static signed int laster;
+signed int m;
+int Kp=10;
+int Kd=2;
+
+unsigned char buffer[17];
+
+char sData[8];
+char RIndex;
+  
+unsigned int KonversiDataSerial()
+{
+    unsigned int Hasil=0;
+    Hasil = (sData[1]-48) *100;
+    Hasil += (sData[2]-48) *10;
+    Hasil += sData[3]-48;
+   
+    return Hasil;    
+}
+
+unsigned int KonversiDataSerial2()
+{
+    unsigned int Hasil=0;
+    Hasil = (sData[5]-48) *100;
+    Hasil += (sData[6]-48) *10;
+    Hasil += sData[7]-48;
+     
+    return Hasil;    
+}
+
+// USART Receiver interrupt service routine
+interrupt [USART_RXC] void usart_rx_isr(void)
+{
+char status,data;
+status=UCSRA;
+data=UDR;
+if ((status & (FRAMING_ERROR | PARITY_ERROR | DATA_OVERRUN))==0)
+   { 
+   if (data == 'R' ||data == 'G' ||data =='B' ||data == 'Y' ||data == '!' ) 
+    {
+        sData[0]=data;   
+        RIndex = 1;
+    } 
+    else if(data=='x') flag=1; 
+    else if (data == 13)
+    {   //cek isi dari header
+        switch (sData[0])
+        {  
+            case 'R': x_r = KonversiDataSerial();  
+                      y_r = KonversiDataSerial2(); break;
+            case 'G': x_g = KonversiDataSerial();
+                      y_g = KonversiDataSerial2(); break;
+            case 'B': x_b = KonversiDataSerial(); 
+                      y_b = KonversiDataSerial2(); break;
+            case 'Y': x_y = KonversiDataSerial(); 
+                      y_y = KonversiDataSerial2(); break;
+            case '!': sr = KonversiDataSerial(); 
+                      sg = KonversiDataSerial2(); break;
+        }
+    } 
+    else
+    {
+        sData[RIndex]=data;   
+        if(RIndex>8) RIndex=0;
+        else RIndex++;
+    }                                                           
+   
+//   rx_buffer[rx_wr_index]=data;
+//   if (++rx_wr_index == RX_BUFFER_SIZE) rx_wr_index=0;
+//   if (++rx_counter == RX_BUFFER_SIZE)
+//      {
+//      rx_counter=0;
+//      rx_buffer_overflow=1;
+//      };
+   };
+}
+
+#ifndef _DEBUG_TERMINAL_IO_
+// Get a character from the USART Receiver buffer
+#define _ALTERNATE_GETCHAR_
+#pragma used+
+char getchar(void)
+{
+char data;
+while (rx_counter==0);
+data=rx_buffer[rx_rd_index];
+if (++rx_rd_index == RX_BUFFER_SIZE) rx_rd_index=0;
+#asm("cli")
+--rx_counter;
+#asm("sei")
+return data;
+}
+#pragma used-
+#endif
+/*
+unsigned char kompas(char reg)
+
+{int data;
+
+i2c_start();
+
+i2c_write(0xC0);
+
+i2c_write(reg);
+
+i2c_start();
+
+i2c_write(0xc1);
+
+data=i2c_read(0);
+
+i2c_stop();
+
+return data;
+
+}    
+ */
+// Standard Input/Output functions
+unsigned int a,pwm1,pwm2,pwm3,pwm4;
+
+// Timer 0 overflow interrupt service routine
+interrupt [TIM0_OVF] void timer0_ovf_isr(void)
+{
+// Place your code here
+    a++;
+    if(a<=pwm1)en1=0;   else en1=1;
+    if(a<=pwm2)en2=0;   else en2=1;
+    if(a<=pwm3)en3=0;   else en3=1;
+    if(a<=pwm4)en4=0;   else en4=1;
+}
+
+// Declare your global variables here
+void stop()
+{
+    cw1=0; ccw1=0; cw2=0; ccw2=0;   cw3=0; ccw3=0; cw4=0; ccw4=0; 
+}
+
+void maju(unsigned char v)
+{ 
+
+   en1=v*cos60; cw1=0; ccw1=1;  en2=v*cos60; cw2=1; ccw2=0;
+   en4=v*cos45; cw4=0; ccw4=1;  en3=v*cos45; cw3=1; ccw3=0;  
+}
+
+//-------------PERHITUNGAN Angle && Magnitude---------------------//  
+void hitung(int xo, int yo, int xt, int yt)
+{
+    float sd, m;
+    float  x1, y1;
+
+    //hitung selisih koordinat
+    x1=xt-xo;  
+    if(x1<0)    x1=-x1;
+    else    x1=x1;
+   // x=sqrt(pow(x1,2));
+    
+    y1=yt-yo;
+    if(y1<0)    y1=-y1;
+    else    y1=y1; 
+   // y=sqrt(pow(y1,2));   
+    
+    m = sqrt(pow(x1,2)  + pow(y1,2)); 
+    magnitude = m;
+    sd =atan2(y1,x1);       
+    sd=(sd*180)/3.14;     //rad2deg    
+
+    //Penentuan Kuadran                      //y kebawah = +...y ke atas = -...
+    if(xo<=xt && yo>=yt)       { sudut=sd; kuadran=1; }        //kuadran 1    
+    else if(xo>=xt && yo>=yt)  { sudut=180-sd; kuadran=2; }    //kuadran 2    
+    else if(xo>=xt && yo<=yt)  { sudut=sd+180; kuadran=3; }    //kuadran 3    
+    else if(xo<=xt && yo<=yt)  { sudut=360-sd; kuadran=4; }   //kuadran 4    
+}
+
+//------------Kinematik------------
+
+void CW_CCW_motor(float a, float b, float c, float d)
+{
+    if(a<0){ cw1=1; ccw1=0; en1=-a; }    else { cw1=0; ccw1=1; en1=a; }  
+    if(b<0){ cw2=1; ccw2=0; en2=-b; }    else { cw2=0; ccw2=1; en2=b; }
+    if(c<0){ cw3=1; ccw3=0; en3=-c; }    else { cw3=0; ccw3=1; en3=c; }
+    if(d<0){ cw4=1; ccw4=0; en4=-d; }    else { cw4=0; ccw4=1; en4=d; }
+}
+
+void Gerak_linier(float alpha, float asudut)
+{   float a, b, c, d, tsudut;
+   
+    tsudut=alpha-asudut;
+     a=cos(((55-tsudut)/180)*3.14);            //deg2rad
+     b=cos(((125-tsudut)/180)*3.14);
+     c=cos(((225-tsudut)/180)*3.14);
+     d=cos(((315-tsudut)/180)*3.14);
+     
+    Fa=Vel*a;
+    Fb=Vel*b;
+    Fc=Vel*c;
+    Fd=Vel*d;                                      
+}
+
+void Move(float alpha2, int jarak)          //Linier + Angular
+{
+    float Fang, f1,f2,f3,f4;
+    float skompas, act_kompas,alpha3;
+    int radius=8; 
+    int xkompas; 
+   /*        
+    kompas(1);        
+  //  act_kompas=(kompas(1)*1.41176470588235);  
+    skompas=(kompas(1)*1.41176470588235);    
+    
+    xkompas=skompas;
+   
+    if(skompas>=0 && skompas<90)
+        {     
+            act_kompas=xkompas;             //sampai 14-102
+        }
+   else if(skompas>=90 && skompas<=360)
+        {
+            if(xkompas>=360)  act_kompas=(xkompas-360); 
+            else act_kompas=xkompas; 
+        }
+    
+   */
+   act_kompas=sr;
+           
+    Gerak_linier(alpha2,act_kompas);
+    
+    Fang=(Vel/radius);   //Gerak Angular  
+    
+    if(kuadran==1 || kuadran==2)
+    {
+        if(act_kompas >= (180+alpha2) || act_kompas <= alpha2)
+        {                                                                
+            if(act_kompas<=alpha2)
+            {
+                dkompas = act_kompas;
+            }
+            else
+            {
+               dkompas = -(360-act_kompas);
+            }     
+             Fang = -Fang;  
+        }
+        else 
+        {                        
+            dkompas=act_kompas;  
+            Fang= Fang; 
+        }              
+    }  
+    
+    else if(kuadran==3 || kuadran==4)       
+    {  
+        if(alpha2 >= act_kompas && act_kompas >= (alpha2-180))
+        {  
+            dkompas = act_kompas;      Fang=Fang;           
+        }
+        else if(act_kompas>=alpha2)
+        {
+            dkompas = act_kompas;      Fang=-Fang;
+        }
+        else if(act_kompas<(alpha2-180))
+        {
+            dkompas = (360-act_kompas);    Fang=-Fang;
+        }  
+    }
+       
+      er=alpha2-dkompas;       
+        P=Kp*er;
+     der=er-laster;
+         D=Kd*der;     
+     laster=er;
+         m=P+D;
+    
+//    if(jarak>50)
+//    {  
+        if(er<=-1 && er>=1)  maju(200);
+        else 
+        {
+          f1=Fa+Fang+m;
+          f2=Fb+Fang+m;
+          f3=Fc+Fang+m;
+          f4=Fd+Fang+m;
+        }           
+ //   }                 
+    
+//    else
+//    {   
+//         if(er<=-1 && er>=1)  maju(200);
+//         else 
+//         {
+//          f1=Vel+Fang+m;
+//          f2=-Vel+Fang+m;
+//          f3=-Vel+Fang+m;
+//          f4=Vel+Fang+m;
+//         }           
+//     }
+   CW_CCW_motor(f1,f2,f3,f4);
+         
+  /*         lcd_gotoxy(0,0);                                        
+     sprintf(buffer,"%.0f  %.0f  %.0f ",alpha2,Fang, er);
+     lcd_puts(buffer); 
+     lcd_gotoxy(0,1);
+     sprintf(buffer,"%.0f  %.0f  %.0f ",act_kompas,f1,f2);
+     lcd_puts(buffer); 
+  */     
+}
+
+void ketarget(float sudut, int jarak)   //Pergerakan Menuju Target
+{
+    if(jarak>60)
+    {   
+        Move(sudut,jarak);
+    }
+    else stop();
+}
+
+void main(void)
+{
+// Declare your local variables here
+
+// Input/Output Ports initialization
+// Port A initialization
+// Func7=In Func6=In Func5=In Func4=In Func3=In Func2=In Func1=In Func0=In 
+// State7=T State6=T State5=T State4=T State3=T State2=T State1=T State0=T 
+PORTA=0x00;
+DDRA=0x00;
+
+// Port B initialization
+// Func7=Out Func6=Out Func5=Out Func4=Out Func3=Out Func2=Out Func1=Out Func0=Out 
+// State7=0 State6=0 State5=0 State4=0 State3=0 State2=0 State1=0 State0=0 
+PORTB=0x00;
+DDRB=0xFF;
+
+// Port C initialization
+// Func7=Out Func6=Out Func5=In Func4=In Func3=In Func2=In Func1=In Func0=In 
+// State7=0 State6=0 State5=T State4=T State3=T State2=T State1=T State0=T 
+PORTC=0x00;
+DDRC=0xC0;
+
+// Port D initialization
+// Func7=Out Func6=Out Func5=Out Func4=Out Func3=Out Func2=Out Func1=In Func0=In 
+// State7=0 State6=0 State5=0 State4=0 State3=0 State2=0 State1=T State0=T 
+PORTD=0x00;
+DDRD=0xFC;
+
+// Timer/Counter 0 initialization
+// Clock source: System Clock
+// Clock value: 11059.200 kHz
+// Mode: Fast PWM top=FFh
+// OC0 output: Disconnected
+TCCR0=0x49;
+TCNT0=0x00;
+OCR0=0x00;
+
+// Timer/Counter 1 initialization
+// Clock source: System Clock
+// Clock value: Timer 1 Stopped
+// Mode: Normal top=FFFFh
+// OC1A output: Discon.
+// OC1B output: Discon.
+// Noise Canceler: Off
+// Input Capture on Falling Edge
+// Timer 1 Overflow Interrupt: Off
+// Input Capture Interrupt: Off
+// Compare A Match Interrupt: Off
+// Compare B Match Interrupt: Off
+TCCR1A=0x00;
+TCCR1B=0x00;
+TCNT1H=0x00;
+TCNT1L=0x00;
+ICR1H=0x00;
+ICR1L=0x00;
+OCR1AH=0x00;
+OCR1AL=0x00;
+OCR1BH=0x00;
+OCR1BL=0x00;
+
+// Timer/Counter 2 initialization
+// Clock source: System Clock
+// Clock value: Timer 2 Stopped
+// Mode: Normal top=FFh
+// OC2 output: Disconnected
+ASSR=0x00;
+TCCR2=0x00;
+TCNT2=0x00;
+OCR2=0x00;
+
+// External Interrupt(s) initialization
+// INT0: Off
+// INT1: Off
+// INT2: Off
+MCUCR=0x00;
+MCUCSR=0x00;
+
+// Timer(s)/Counter(s) Interrupt(s) initialization
+TIMSK=0x01;
+
+// USART initialization
+// Communication Parameters: 8 Data, 1 Stop, No Parity
+// USART Receiver: On
+// USART Transmitter: On
+// USART Mode: Asynchronous
+// USART Baud Rate: 9600
+UCSRA=0x00;
+UCSRB=0x98;
+UCSRC=0x86;
+UBRRH=0x00;
+UBRRL=0x47;
+
+// Analog Comparator initialization
+// Analog Comparator: Off
+// Analog Comparator Input Capture by Timer/Counter 1: Off
+ACSR=0x80;
+SFIOR=0x00;
+
+// I2C Bus initialization
+i2c_init();
+
+// LCD module initialization
+lcd_init(16);
+
+// Global enable interrupts
+#asm("sei")
+
+while (1)
+      {
+      // Place your code here    
+ //    hitung(x_r,y_r, x_y, y_y);  s_ry=sudut;     m_ry=magnitude;    ketarget(s_ry, m_ry);  
+ //      maju(100);
+ // putchar('a');
+ // Move(0,0);            
+ //   lcd_gotoxy(0,0);     
+ //     lcd_putsf("wakakakak");                                   
+ //    sprintf(buffer,"%d  %d  ",x_b,y_b);
+ //    lcd_puts(buffer); 
+//     lcd_gotoxy(0,1);
+//     sprintf(buffer,"%d  %d ",s_by,m_by);
+//     lcd_puts(buffer);
+    PORTB.6=1; PORTB.7=0; delay_ms(100);
+    PORTB.6=0; PORTB.7=1; delay_ms(100);
+
+      };
+}

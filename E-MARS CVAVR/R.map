@@ -1,0 +1,64 @@
+RAM Allocation
+Variable                                                          Address   Size
+--------------------------------------------------------------------------------
+rx_buffer0                                                        0500h        8
+sr                                                                0508h        2
+sg                                                                050Ah        2
+s_rt                                                              050Ch        2
+s_gt                                                              050Eh        2
+s_rg                                                              0510h        2
+s_gr                                                              0512h        2
+s_rk                                                              0514h        2
+s_gk                                                              0516h        2
+s_ok                                                              0518h        2
+m_rt                                                              051Ah        2
+m_gt                                                              051Ch        2
+m_rg                                                              051Eh        2
+m_gr                                                              0520h        2
+m_rk                                                              0522h        2
+m_gk                                                              0524h        2
+m_ok                                                              0526h        2
+Fa                                                                0528h        4
+Fb                                                                052Ch        4
+Fc                                                                0530h        4
+Fd                                                                0534h        4
+Vel                                                               0538h        2
+er                                                                053Ah        4
+der                                                               053Eh        4
+P                                                                 0542h        4
+D                                                                 0546h        4
+laster                                                            054Ah        2
+m                                                                 054Ch        2
+Kp                                                                054Eh        2
+Kd                                                                0550h        2
+sData                                                             0552h        8
+a                                                                 055Ah        2
+pwm1                                                              055Ch        2
+pwm2                                                              055Eh        2
+pwm3                                                              0560h        2
+pwm4                                                              0562h        2
+pwm5                                                              0564h        2
+psol                                                              0566h        1
+_base_y                                                           0567h        4
+_lcd_x                                                            056Bh        1
+_lcd_y                                                            056Ch        1
+_lcd_maxx                                                         056Dh        1
+p                                                                 056Eh        2
+_seed                                                             0570h        4
+
+EEPROM Allocation
+Variable                                                          Address   Size
+--------------------------------------------------------------------------------
+
+Register Allocation
+Variable                                                          Register  Size
+--------------------------------------------------------------------------------
+rx_wr_index0                                                      R4           1
+rx_rd_index0                                                      R3           1
+rx_counter0                                                       R6           1
+rx_buffer_overflow0                                               GPIOR0.0  1bit
+flag                                                              R7,R8        2
+tanda_r                                                           R9,R10       2
+tanda_g                                                           R11,R12      2
+kuadran                                                           R13,R14      2
+RIndex                                                            R5           1

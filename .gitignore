@@ -1,0 +1,5 @@
+# Ignore ALL files in ANY directories named:
+Debug/
+Exe/
+Linker/
+Obj/
